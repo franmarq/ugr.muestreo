@@ -1,0 +1,80 @@
+---
+title: "UGR Estadistica Aplicada - Muestreo - Tema 3"
+author: "franmarq@gmail.com"
+date: '2022-10-26'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+A partir de la base de datos FAM1500, se pide
+
+En primer lugar vamos a leer el conjunto de datos: 
+
+```{r readtable}
+data<-read.table("Fam1500todos.txt",header=T,row.names=1, sep = ',')
+
+```
+
+Luego vamos a describir las características principales del conjunto 
+```{r descrip}
+str(data)
+```
+
+## 1.1  Seleccionar una muestra aleatoria simple de tamaño 50 y, a partir de la información recogida en ella, 
+
+```{r sample}
+n<-50 #tamaño de la muestra
+muestra1<- sample(1:nrow(data),size=n,replace=FALSE)
+muestra1
+```
+## 1.2 estimar la media de los gastos adicionales (AD), así como el error de muestreo asociado   a esta estimación.
+
+```{r mean}
+med_muestra<-mean(muestra1)
+err_muestra<-sd(muestra1)
+med_muestra
+err_muestra
+```
+Alternativamente, podemos utilizar el paquete TeachingSampling, el cual nos permite obtener la estimación de Horvitz-Thompson
+
+```{r muestraht}
+require(TeachingSampling) 
+ind = S.SI(1500, 50)
+muestra2 = data[ind,] 
+head(muestra2)
+```
+
+
+## 2  Dar un intervalo de confianza al 90% para la estimación anterior.
+
+```{r interval}
+require(DescTools)
+IC_muestra<- MeanCI(x=data$AD, trim = 0,conf.level = 0.9, na.rm = FALSE)
+IC_muestra
+```
+
+3  Seleccionar una muestra de tamaño 30 con probabilidades proporcionales al número de personas (PE). Estimar puntualmente la proporción de familias que poseen automóviles (A)
+
+Para esta estimación, en primer lugar debemos hacer una estimacion de la proporcion de los estratos, que en este caso se refieren a dos grupos: familias con y sin automoviles (Variable A). Para la rpoporcion de los estratos, usaremos la variable Número de Personas (PE).
+
+
+```{r estratos}
+#Cálculo de las proporciones por estrato
+
+Estratos<- data %>%
+  select(A,PE) %>%
+  group_by(A) %>%
+  summarise(n=n(),
+            s=sd(PE)) %>%
+  mutate(p=n/sum(n))
+
+Estratos
+
+```
+
+4 Dar un intervalo de confianza al 95% para la estimación anterior.
+```{}
+```
